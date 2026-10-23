@@ -1,4 +1,4 @@
-# HelloGrpcDevice - NI gRPC C# wrapper skill
+# NI gRPC Device C# Wrapper Skill
 
 This repository contains a Copilot **skill**, `ni-grpc-csharp-wrapper`, that generates a C# client for an NI driver exposed by the
 [NI gRPC Device Server](https://github.com/ni/grpc-device). Following the official
@@ -30,11 +30,11 @@ The skill is self-contained; copy the whole `ni-grpc-csharp-wrapper` folder to r
 2. Install prerequisites: .NET 8+ SDK and Python 3 (for the generator scripts). To run the example you need an NI gRPC Device Server
    (default `localhost:31763`); simulated mode needs no hardware.
 3. Ask Copilot for a wrapper, for example:
-   - `Create an NI gRPC device client in C# for NI-FGEN. Include the documentation from https://nifgen.readthedocs.io/en/latest/nifgen.html`
-     - generates the wrapper, documentation and examples.
-   - `Create a C# API for NI-DMM by referring to https://github.com/ni/grpc-device/wiki/Creating-a-gRPC-Client`
-     - no documentation given, so Copilot searches for the Python docs and asks whether to use them.
-   - `Create a C# API for NI-SCOPE` - generates the wrapper and suggests adding the online documentation and examples.
+    - `Create an NI gRPC device client in C# for NI-FGEN. Include the documentation from https://nifgen.readthedocs.io/en/latest/nifgen.html`
+        - generates the wrapper, documentation and examples.
+    - `Create a C# API for NI-DMM by referring to https://github.com/ni/grpc-device/wiki/Creating-a-gRPC-Client`
+        - no documentation given, so Copilot searches for the Python docs and asks whether to use them.
+    - `Create a C# API for NI-SCOPE` - generates the wrapper and suggests adding the online documentation and examples.
 4. Run the generated app: `dotnet run -- [server_address] [resource_name] [channel...]`.
    With no resource name it runs on a simulated device; with a resource name (for example `SMU1`) it runs on real hardware.
 
