@@ -1,6 +1,6 @@
-The XML documentation comments in NIDCPower/DCPower.cs are adapted from the NI-DCPower Python API
+The XML documentation comments in the generated C# wrapper (for example DCPower.cs) are adapted from the NI-DCPower Python API
 documentation sources (https://github.com/ni/nimi-python, https://nidcpower.readthedocs.io/).
-The extracted text is stored in tools/nidcpower_docs.json.
+The extracted text is stored in the generated tools/<driver>_docs.json.
 
 nimi-python is distributed under the MIT License:
 

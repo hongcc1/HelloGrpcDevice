@@ -38,6 +38,11 @@ The skill is self-contained; copy the whole `ni-grpc-csharp-wrapper` folder to r
 4. Run the generated app: `dotnet run -- [server_address] [resource_name] [channel...]`.
    With no resource name it runs on a simulated device; with a resource name (for example `SMU1`) it runs on real hardware.
 
+## License
+
+Released under the [MIT License](LICENSE). The software is provided "as is", without warranty of any kind; use it at your own risk,
+including when driving real hardware.
+
 ## Notes
 
 - Generated documentation text is adapted from nimi-python (MIT licence); the notice is shipped in `reference/NOTICE-nimi-python.txt`.
