@@ -18,7 +18,7 @@ try
 
     dcPower.ConfigureSourceModeSinglePoint();
     dcPower.ConfigureDcVoltage(channel, level: 3.0, currentLimit: 0.1);
-    dcPower.SetOutputEnabled(channel, true);
+    dcPower.SetOutputEnabled(channel, true);    
     dcPower.Initiate();
 
     Console.WriteLine($"Voltage: {dcPower.MeasureVoltage(channel):F4} V");
