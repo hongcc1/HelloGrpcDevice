@@ -8,9 +8,26 @@ description: Create a documented, OOP-style C# wrapper with auto error capture, 
 Use this skill when the user asks for a C# API, client or wrapper for an NI driver via ni/grpc-device.
 
 The user names an NI driver (for example NI-DCPower, NI-FGEN, NI-DMM, NI-SCOPE, NI-DAQmx) and may supply a documentation URL.
-Produce a .NET console project containing a native-feeling OOP class that hides gRPC, plus an example. Use the finished
-`NIDCPower\DCPower.cs` in this repo as the reference for the target shape.
+Produce a .NET console project containing a native-feeling OOP class that hides gRPC, plus an example.
 
+## Bundled reference files (this skill is self-contained)
+
+Everything needed is in the `reference\` folder next to this SKILL.md. **Do not assume any other project files exist** -
+copy from `reference\` and adapt (replace `DCPower`/`NiDCPower`/`NIDCPOWER_`/`nidcpower` with the target driver's names):
+
+| File | Use |
+|---|---|
+| `reference\NIDCPower.csproj` | Project file template (packages and `<Protobuf>` items) |
+| `reference\DCPower.skeleton.cs` | Hand-written part of the wrapper: exception, constructors, `Close`, `Dispose`, `Check`, and an empty generated region |
+| `reference\generate_dcpower_wrapper.py` | Generator: parses the `.proto`, fills the generated region (adapt paths/names/skipped RPCs) |
+| `reference\extract_nidcpower_docs.py` | Downloads nimi-python metadata into a JSON docs file |
+| `reference\dcpower_docs.py` | Converts the docs to C# XML comments (adapt the attribute mapping/manual summaries) |
+| `reference\NOTICE-nimi-python.txt` | MIT notice to ship with generated docs |
+| `reference\Program.cs` | Example app: simulated by default, real hardware when a resource name is given |
+
+Place the tool scripts in `tools\` of the new project, and set the paths at the top of the generator (`ROOT`, `PROTO`, `OUT`).
+If the target driver does not have a function the skeleton uses (e.g. `InitializeWithIndependentChannels`), use the driver's own
+init RPC(s) instead.
 Reference: https://github.com/ni/grpc-device/wiki/Creating-a-gRPC-Client
 
 ## Step 0 - Gather inputs (ask with `ask_user`, one question at a time)
@@ -27,7 +44,7 @@ Reference: https://github.com/ni/grpc-device/wiki/Creating-a-gRPC-Client
 ## Step 1 - Project setup
 
 - Create a .NET 8 console project `NI<Driver>\` (e.g. `NIFgen`). Packages: `Google.Protobuf`, `Grpc.Net.Client`, `Grpc.Tools`
-  (use versions from `NIDCPower\NIDCPower.csproj`). Use `GrpcServices="Client"` on the `<Protobuf>` items.
+  (Google.Protobuf 3.28.3, Grpc.Net.Client 2.66.0, Grpc.Tools 2.67.0 with `PrivateAssets="All"`; see `reference\NIDCPower.csproj`). Use `GrpcServices="Client"` on the `<Protobuf>` items.
 - Obtain the protos. `session.proto` is no longer on the grpc-device main branch. Take `<driver>.proto`, `nidevice.proto` and
   `session.proto` from the latest **client** release zip (`ni/grpc-device` GitHub Releases, e.g. `ni-grpc-device-client-*.zip`)
   and place them in the project folder. Keep the three files consistent from one release.
@@ -37,7 +54,7 @@ Reference: https://github.com/ni/grpc-device/wiki/Creating-a-gRPC-Client
 
 ## Step 2 - Wrapper class design (single file `<Driver>.cs`)
 
-Match `DCPower.cs`:
+Start from `reference\DCPower.skeleton.cs`:
 
 - `public sealed class <Driver> : IDisposable` owning the `GrpcChannel`/client and the driver `Session`.
 - Exception type `<Driver>Exception` carrying the status code and the message. After **every** RPC call `Check(status)`:
@@ -55,7 +72,7 @@ Match `DCPower.cs`:
 
 ## Step 3 - Generate the bulk of the wrapper
 
-Write `tools\generate_<driver>_wrapper.py` (adapt `tools\generate_dcpower_wrapper.py`):
+Write `tools\generate_<driver>_wrapper.py` (copy and adapt `reference\generate_dcpower_wrapper.py`; run it with `python tools\generate_<driver>_wrapper.py`):
 
 - Parse the `.proto` (rpc names, request/response messages, field names/types, enums, `repeated`, `oneof`).
 - Emit methods into a `#region Generated RPC wrappers` ... `#endregion` block at the bottom of `<Driver>.cs`; the generator
@@ -67,7 +84,7 @@ Write `tools\generate_<driver>_wrapper.py` (adapt `tools\generate_dcpower_wrappe
 
 Python docs map well onto the RPCs. Source of truth is the MIT-licensed **nimi-python** metadata
 (`https://github.com/ni/nimi-python`, `src/<driver>/metadata/functions.py` and `attributes.py`) - far easier to parse than the
-JS-rendered web pages. Pipeline as in `tools\`:
+JS-rendered web pages. Pipeline (copy and adapt the `reference\` scripts into `tools\`; the extractor's metadata URL uses `src/<driver>/metadata/`):
 
 1. `extract_<driver>_docs.py` - download the metadata, write `tools\<driver>_docs.json`.
 2. `<driver>_docs.py` - convert reStructuredText to C# XML doc comments (`<summary>`, `<param>`, `<returns>`, `<remarks>`).
@@ -90,7 +107,7 @@ Matching rules learned from NI-DCPower:
 
 ## Step 5 - Example (`Program.cs`)
 
-- Usage: `<App> [server_address] [resource_name] [channel...]`. Default server `localhost:31763`.
+- Usage: `<App> [server_address] [resource_name] [channel...]` (template: `reference\Program.cs`). Default server `localhost:31763`.
 - **No resource name -> simulated device**; otherwise real hardware with an empty option string. Use the driver's simulation
   option string (NI-DCPower: `Simulate=1, DriverSetup=Model:4141; BoardType:PXIe`; for other drivers use a valid simulated model
   from the driver docs/Python examples, e.g. `Simulate=1, DriverSetup=Model:<model>; BoardType:PXIe`).
@@ -111,8 +128,7 @@ Matching rules learned from NI-DCPower:
 
 ## Rules
 
-- Never commit or push unless the user asks. When asked, commit only (no push) and include the trailer
-  `Co-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>`.
+- Never commit or push unless the user asks. When asked, commit only (no push).
 - Keep the final report short: what was generated, how many RPCs wrapped/documented, what is manual, what was tested.
 
 ## Example user prompts
