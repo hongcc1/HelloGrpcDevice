@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "NIDCPower": {
-      "commandName": "Project",
-      "commandLineArgs": "http://10.155.4.18:31763\r\nSMU2\r\n0"
-    }
-  }
-}
